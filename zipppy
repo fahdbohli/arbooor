@@ -1,0 +1,81 @@
+import os
+import zipfile
+import sys
+
+def extract_zip_file(zip_filename, extract_to=None):
+    """
+    Extracts a zip file to the specified directory.
+    
+    Args:
+        zip_filename (str): Path to the zip file to extract
+        extract_to (str, optional): Directory to extract files to. If None, 
+                                   extracts to the current directory.
+    
+    Returns:
+        bool: True if extraction was successful, False otherwise
+    """
+    # If no extraction directory specified, use current directory
+    if extract_to is None:
+        extract_to = os.getcwd()
+    
+    # Make sure the extraction directory exists
+    if not os.path.exists(extract_to):
+        try:
+            os.makedirs(extract_to)
+            print(f"Created extraction directory: {extract_to}")
+        except OSError as e:
+            print(f"Error creating directory {extract_to}: {e}")
+            return False
+    
+    # Make sure the zip file exists
+    if not os.path.isfile(zip_filename):
+        print(f"Error: Zip file '{zip_filename}' not found.")
+        return False
+    
+    try:
+        # Open and extract the zip file
+        with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
+            # Print the contents of the zip file
+            print(f"Contents of {zip_filename}:")
+            for file_info in zip_ref.infolist():
+                print(f"  {file_info.filename} ({file_info.file_size} bytes)")
+            
+            # Extract all files
+            print(f"Extracting to {extract_to}...")
+            zip_ref.extractall(path=extract_to)
+            
+        print(f"Successfully extracted {zip_filename} to {extract_to}")
+        return True
+    
+    except zipfile.BadZipFile:
+        print(f"Error: '{zip_filename}' is not a valid zip file.")
+        return False
+    except Exception as e:
+        print(f"Error extracting '{zip_filename}': {e}")
+        return False
+
+def main():
+    # Default zip filename
+    zip_filename = "Arbitrage Betting.zip"
+    
+    # Default extraction directory (current directory)
+    extract_to = None
+    
+    # Check if command line arguments are provided
+    if len(sys.argv) > 1:
+        zip_filename = sys.argv[1]
+    
+    if len(sys.argv) > 2:
+        extract_to = sys.argv[2]
+    
+    # Extract the zip file
+    success = extract_zip_file(zip_filename, extract_to)
+    
+    # Return appropriate exit code
+    if success:
+        sys.exit(0)
+    else:
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
